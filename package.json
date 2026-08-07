@@ -11,13 +11,13 @@
 		"claude",
 		"connectors"
 	],
-	"homepage": "https://github.com/briancoords/mcp-connection-guide#readme",
+	"homepage": "https://github.com/bacoords/mcp-connection-guide#readme",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/briancoords/mcp-connection-guide.git"
+		"url": "git+https://github.com/bacoords/mcp-connection-guide.git"
 	},
 	"bugs": {
-		"url": "https://github.com/briancoords/mcp-connection-guide/issues"
+		"url": "https://github.com/bacoords/mcp-connection-guide/issues"
 	},
 	"engines": {
 		"node": ">=20",

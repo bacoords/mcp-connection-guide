@@ -1,5 +1,5 @@
 {
-	"name": "briancoords/mcp-connection-guide",
+	"name": "bacoords/mcp-connection-guide",
 	"description": "A WordPress Connectors screen guide for connecting Codex and Claude through the WordPress MCP Adapter.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
