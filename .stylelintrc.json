@@ -1,0 +1,13 @@
+{
+  "extends": ["@wordpress/stylelint-config"],
+  "rules": {
+    "selector-class-pattern": "^[a-z][a-z0-9]*(?:(?:--|__|-)[a-z0-9]+)*$",
+    "rule-empty-line-before": [
+      "always",
+      {
+        "except": ["first-nested"],
+        "ignore": ["after-comment"]
+      }
+    ]
+  }
+}

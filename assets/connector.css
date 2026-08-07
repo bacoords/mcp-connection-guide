@@ -1,0 +1,214 @@
+.mcp-guide__logo {
+	display: grid;
+	width: 48px;
+	height: 48px;
+	place-items: center;
+	border: 1px solid #c3c4c7;
+	border-radius: 8px;
+	background: #f0f6fc;
+	color: #135e96;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+}
+
+.mcp-guide__actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.mcp-guide__badge {
+	display: inline-flex;
+	align-items: center;
+	min-height: 24px;
+	padding: 0 9px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.mcp-guide__badge--available {
+	background: #edfaef;
+	color: #116329;
+}
+
+.mcp-guide__badge--missing {
+	background: #fcf0f1;
+	color: #8a2424;
+}
+
+.mcp-guide__setup {
+	display: grid;
+	gap: 24px;
+	padding-top: 4px;
+}
+
+.mcp-guide__step {
+	display: grid;
+	grid-template-columns: 28px minmax(0, 1fr);
+	gap: 12px;
+}
+
+.mcp-guide__step-number {
+	display: grid;
+	width: 28px;
+	height: 28px;
+	place-items: center;
+	border-radius: 50%;
+	background: #1e1e1e;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.mcp-guide__step-content h3 {
+	margin: 3px 0 8px;
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+.mcp-guide__step-content p {
+	margin: 0 0 12px;
+}
+
+.mcp-guide__endpoint {
+	display: block;
+	max-width: 100%;
+	padding: 8px 10px;
+	overflow-x: auto;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #f6f7f7;
+	white-space: nowrap;
+}
+
+.mcp-guide__muted,
+.mcp-guide__client-description,
+.mcp-guide__revoke {
+	color: #50575e;
+}
+
+.mcp-guide__tabs {
+	display: flex;
+	gap: 4px;
+	margin-top: 4px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.mcp-guide__tabs button {
+	position: relative;
+	margin: 0 0 -1px;
+	padding: 8px 12px;
+	border: 1px solid transparent;
+	border-bottom-color: #dcdcde;
+	background: transparent;
+	color: #2c3338;
+	cursor: pointer;
+	font: inherit;
+}
+
+.mcp-guide__tabs button:hover {
+	color: var(--wp-admin-theme-color, #2271b1);
+}
+
+.mcp-guide__tabs button:focus-visible {
+	z-index: 1;
+	outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+	outline-offset: -2px;
+}
+
+.mcp-guide__tabs button.is-active {
+	border-color: #dcdcde;
+	border-bottom-color: #fff;
+	background: #fff;
+	color: var(--wp-admin-theme-color, #2271b1);
+	font-weight: 600;
+}
+
+.mcp-guide__tab-ready {
+	margin-left: 6px;
+	color: #008a20;
+}
+
+.mcp-guide__tabpanel {
+	padding-top: 16px;
+}
+
+.mcp-guide__tabpanel .components-notice {
+	margin: 0 0 16px;
+}
+
+.mcp-guide__credential {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 10px 16px;
+	align-items: center;
+	margin-bottom: 18px;
+}
+
+.mcp-guide__credential > div {
+	display: grid;
+	gap: 3px;
+	min-width: 0;
+}
+
+.mcp-guide__credential code {
+	overflow-wrap: anywhere;
+}
+
+.mcp-guide__label {
+	color: #50575e;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.mcp-guide__code-block {
+	position: relative;
+	margin-top: 10px;
+	border-radius: 5px;
+	background: #1e1e1e;
+	color: #f0f0f0;
+}
+
+.mcp-guide__code-block pre {
+	margin: 0;
+	padding: 16px 16px 60px;
+	overflow-x: auto;
+	white-space: pre;
+}
+
+.mcp-guide__code-block code {
+	background: transparent;
+	color: inherit;
+	font-size: 12px;
+}
+
+.mcp-guide__code-action {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
+}
+
+.mcp-guide__revoke {
+	margin-top: 12px !important;
+	font-size: 12px;
+}
+
+@media (max-width: 782px) {
+	.mcp-guide__actions {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.mcp-guide__tabs {
+		overflow-x: auto;
+	}
+
+	.mcp-guide__tabs button {
+		white-space: nowrap;
+	}
+}

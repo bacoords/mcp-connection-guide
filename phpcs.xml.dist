@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<ruleset name="MCP Connection Guide">
+	<description>WordPress and PHP compatibility standards for MCP Connection Guide.</description>
+
+	<file>mcp-connection-guide.php</file>
+
+	<arg value="sp"/>
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="8"/>
+
+	<config name="minimum_wp_version" value="7.1"/>
+	<config name="testVersion" value="7.4-"/>
+
+	<rule ref="WordPress"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="mcp-connection-guide"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="MCP_Connection_Guide"/>
+				<element value="mcp_connection_guide"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

@@ -1,0 +1,57 @@
+{
+	"name": "mcp-connection-guide",
+	"version": "0.1.0",
+	"description": "A WordPress Connectors screen guide for connecting Codex and Claude through the WordPress MCP Adapter.",
+	"author": "Brian Coords",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"wordpress",
+		"mcp",
+		"codex",
+		"claude",
+		"connectors"
+	],
+	"homepage": "https://github.com/briancoords/mcp-connection-guide#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/briancoords/mcp-connection-guide.git"
+	},
+	"bugs": {
+		"url": "https://github.com/briancoords/mcp-connection-guide/issues"
+	},
+	"engines": {
+		"node": ">=20",
+		"npm": ">=10"
+	},
+	"files": [
+		"assets/",
+		"CHANGELOG.md",
+		"LICENSE.md",
+		"mcp-connection-guide.php",
+		"README.md"
+	],
+	"devDependencies": {
+		"@wordpress/prettier-config": "^4.39.0",
+		"@wordpress/scripts": "^31.4.0",
+		"prettier": "^3.0.3",
+		"typescript": "~5.9.3"
+	},
+	"scripts": {
+		"lint": "npm run lint:js && npm run lint:css && npm run lint:php && npm run lint:md && npm run lint:pkg && npm run format:check",
+		"lint:js": "wp-scripts lint-js assets/connector.mjs",
+		"lint:js:fix": "wp-scripts lint-js assets/connector.mjs --fix",
+		"lint:css": "wp-scripts lint-style assets/connector.css",
+		"lint:css:fix": "wp-scripts lint-style assets/connector.css --fix",
+		"lint:php": "composer lint",
+		"lint:md": "wp-scripts lint-md-docs README.md CONTRIBUTING.md CHANGELOG.md",
+		"lint:pkg": "wp-scripts lint-pkg-json",
+		"format": "npm run format:assets && npm run format:php",
+		"format:assets": "prettier --write \"assets/**/*.{css,js,mjs}\" && npm run lint:js:fix && npm run lint:css:fix",
+		"format:check": "prettier --check \"assets/**/*.{css,js,mjs}\"",
+		"format:php": "composer format",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"test": "npm run lint"
+	},
+	"private": true,
+	"packageManager": "npm@10.8.2"
+}

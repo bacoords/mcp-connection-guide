@@ -1,0 +1,88 @@
+# MCP Connection Guide
+
+MCP Connection Guide adds a guided setup card to the WordPress Connectors screen. It helps an administrator connect Codex, Claude Code, or Claude Desktop to WordPress through the [WordPress MCP Adapter](https://github.com/WordPress/mcp-adapter).
+
+The plugin is intentionally an onboarding layer. It does not install the MCP Adapter, register WordPress abilities, or store client credentials in Connector settings.
+
+## Status
+
+This is an experimental prototype for WordPress 7.1. Its PHP registration uses the WordPress connector registry, while its custom interface currently relies on the experimental `@wordpress/connectors` exports `__experimentalRegisterConnector` and `__experimentalConnectorItem`. Those JavaScript APIs may change before becoming public.
+
+## Requirements
+
+- WordPress 7.1 or newer.
+- PHP 7.4 or newer.
+- An available `WP\MCP\Core\McpAdapter` class, supplied either by the standalone MCP Adapter or by another plugin that bundles it.
+- Application Passwords enabled for the current WordPress user.
+- Node.js on the computer running Codex or Claude, because the generated configuration uses [`@automattic/mcp-wordpress-remote`](https://www.npmjs.com/package/@automattic/mcp-wordpress-remote).
+
+## Installation
+
+1. Download a release ZIP or clone this repository into `wp-content/plugins/mcp-connection-guide`.
+2. Activate **MCP Connection Guide** in WordPress.
+3. Open **Settings → Connectors**.
+
+If the MCP Adapter class is unavailable, the guide links to the [official MCP Adapter releases](https://github.com/WordPress/mcp-adapter/releases/latest). Install or enable the adapter through your normal plugin deployment workflow, then reload the Connectors screen.
+
+## Usage
+
+1. Find **WordPress MCP** on **Settings → Connectors** and select **Set up**.
+2. Confirm that the MCP Adapter is available.
+3. Choose Codex, Claude Code, or Claude Desktop.
+4. Generate a dedicated WordPress Application Password.
+5. Copy the generated command or JSON configuration into the selected client.
+
+Create a separate Application Password for each client. WordPress returns each password only once; the guide keeps it in browser memory only until the page is reloaded. Credentials can be revoked from the current user's WordPress profile.
+
+The generated client configuration targets the adapter's default HTTP endpoint:
+
+```text
+/wp-json/mcp/mcp-adapter-default-server
+```
+
+## Development
+
+Install the development dependencies:
+
+```bash
+npm install
+composer install
+```
+
+Available commands:
+
+| Command | Purpose |
+| --- | --- |
+| `npm run lint` | Run JavaScript, CSS, PHP, compatibility, and formatting checks. |
+| `npm run lint:js` | Lint the connector script with WordPress ESLint rules. |
+| `npm run lint:js:fix` | Automatically fix supported JavaScript lint violations. |
+| `npm run lint:css` | Lint styles with WordPress Stylelint rules. |
+| `npm run lint:css:fix` | Automatically fix supported CSS lint violations. |
+| `npm run lint:php` | Run WordPress Coding Standards and PHP 7.4+ compatibility checks. |
+| `npm run lint:md` | Lint the repository documentation. |
+| `npm run lint:pkg` | Validate `package.json` against WordPress package rules. |
+| `npm run format` | Format JavaScript, CSS, and PHP files. |
+| `npm run format:check` | Check JavaScript and CSS formatting without changing files. |
+| `npm run plugin-zip` | Create an installable plugin ZIP using the `package.json` file allowlist. |
+| `npm test` | Alias for the complete lint suite. |
+
+The committed `package-lock.json` and `composer.lock` files make local installs and CI reproducible.
+
+## Architecture
+
+- `mcp-connection-guide.php` registers the connector on `wp_connectors_init`, registers and enqueues the script module, and passes current-site data through the Script Modules API.
+- `assets/connector.mjs` supplies the custom connector renderer, creates Application Passwords through the authenticated WordPress REST API, and builds client-specific configuration.
+- `assets/connector.css` scopes the setup interface styles to the connector card.
+
+The adapter check is deliberately simple: it tests whether `WP\MCP\Core\McpAdapter` exists. It does not install plugins or probe the adapter endpoint.
+
+## Security
+
+- Generated Application Passwords are not written to plugin options or Connector settings.
+- Passwords exist only in the REST response and the current browser's in-memory component state.
+- Each client receives a separately revocable credential.
+- Configuration output contains the generated secret, so it should be copied only to the intended local MCP client configuration.
+
+## License
+
+GPL-2.0-or-later. See [LICENSE.md](LICENSE.md).
