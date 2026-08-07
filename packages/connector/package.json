@@ -1,0 +1,35 @@
+{
+	"name": "@mcp-connection-guide/connector",
+	"version": "0.1.0",
+	"description": "Custom WordPress Connectors renderer for the MCP Connection Guide plugin.",
+	"author": "Brian Coords",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"wordpress",
+		"mcp",
+		"connectors"
+	],
+	"homepage": "https://github.com/bacoords/mcp-connection-guide#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bacoords/mcp-connection-guide.git",
+		"directory": "packages/connector"
+	},
+	"bugs": {
+		"url": "https://github.com/bacoords/mcp-connection-guide/issues"
+	},
+	"module": "build-module/index.mjs",
+	"exports": {
+		".": {
+			"import": "./build-module/index.mjs"
+		}
+	},
+	"wpScriptModuleExports": "./build-module/index.mjs",
+	"dependencies": {
+		"@wordpress/api-fetch": "^7.52.0",
+		"@wordpress/components": "^38.0.0",
+		"@wordpress/connectors": "file:../../stubs/wordpress-connectors",
+		"@wordpress/element": "^8.4.0"
+	},
+	"private": true
+}

@@ -3,6 +3,9 @@
 .vscode/
 node_modules/
 vendor/
+packages/*/build/
+packages/*/build-module/
+packages/*/build-style/
 *.zip
 *.log
 .env

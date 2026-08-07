@@ -20,37 +20,49 @@
 		"url": "https://github.com/bacoords/mcp-connection-guide/issues"
 	},
 	"engines": {
-		"node": ">=20",
-		"npm": ">=10"
+		"node": ">=20.10.0",
+		"npm": ">=10.2.3"
 	},
 	"files": [
-		"assets/",
+		"build/",
 		"CHANGELOG.md",
 		"LICENSE.md",
 		"mcp-connection-guide.php",
 		"README.md"
 	],
+	"workspaces": [
+		"packages/*"
+	],
+	"wpPlugin": {
+		"name": "mcp_connection_guide",
+		"scriptGlobal": false,
+		"packageNamespace": "mcp-connection-guide",
+		"handlePrefix": "mcp-connection-guide"
+	},
 	"devDependencies": {
+		"@wordpress/build": "^0.20.0",
 		"@wordpress/prettier-config": "^4.39.0",
 		"@wordpress/scripts": "^31.4.0",
 		"prettier": "^3.0.3",
 		"typescript": "~5.9.3"
 	},
 	"scripts": {
+		"build": "wp-build",
+		"dev": "wp-build --watch",
 		"lint": "npm run lint:js && npm run lint:css && npm run lint:php && npm run lint:md && npm run lint:pkg && npm run format:check",
-		"lint:js": "wp-scripts lint-js assets/connector.mjs",
-		"lint:js:fix": "wp-scripts lint-js assets/connector.mjs --fix",
-		"lint:css": "wp-scripts lint-style assets/connector.css",
-		"lint:css:fix": "wp-scripts lint-style assets/connector.css --fix",
+		"lint:js": "wp-scripts lint-js packages/connector/src/index.js",
+		"lint:js:fix": "wp-scripts lint-js packages/connector/src/index.js --fix",
+		"lint:css": "wp-scripts lint-style packages/connector/src/style.scss",
+		"lint:css:fix": "wp-scripts lint-style packages/connector/src/style.scss --fix",
 		"lint:php": "composer lint",
 		"lint:md": "wp-scripts lint-md-docs README.md CONTRIBUTING.md CHANGELOG.md",
 		"lint:pkg": "wp-scripts lint-pkg-json",
 		"format": "npm run format:assets && npm run format:php",
-		"format:assets": "prettier --write \"assets/**/*.{css,js,mjs}\" && npm run lint:js:fix && npm run lint:css:fix",
-		"format:check": "prettier --check \"assets/**/*.{css,js,mjs}\"",
+		"format:assets": "prettier --write \"packages/**/*.{css,js,jsx,mjs,scss}\" && npm run lint:js:fix && npm run lint:css:fix",
+		"format:check": "prettier --check \"packages/**/*.{css,js,jsx,mjs,scss}\"",
 		"format:php": "composer format",
 		"plugin-zip": "wp-scripts plugin-zip",
-		"test": "npm run lint"
+		"test": "npm run build && npm run lint"
 	},
 	"private": true,
 	"packageManager": "npm@10.8.2"

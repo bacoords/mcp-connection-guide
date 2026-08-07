@@ -19,7 +19,12 @@ namespace MCP_Connection_Guide;
 defined( 'ABSPATH' ) || exit;
 
 const CONNECTOR_ID = 'wordpress-mcp';
-const MODULE_ID    = 'mcp-connection-guide';
+const MODULE_ID    = '@mcp-connection-guide/connector';
+
+$mcp_connection_guide_build_file = __DIR__ . '/build/build.php';
+if ( file_exists( $mcp_connection_guide_build_file ) ) {
+	require_once $mcp_connection_guide_build_file;
+}
 
 /**
  * Register the MCP guide as a non-credential connector.
@@ -50,34 +55,11 @@ function register_connector( $registry ) {
 add_action( 'wp_connectors_init', __NAMESPACE__ . '\\register_connector' );
 
 /**
- * Register the script module used by the custom connector renderer.
- */
-function register_assets() {
-	if ( ! function_exists( 'wp_register_script_module' ) ) {
-		return;
-	}
-
-	$script_path = __DIR__ . '/assets/connector.mjs';
-
-	wp_register_script_module(
-		MODULE_ID,
-		plugins_url( 'assets/connector.mjs', __FILE__ ),
-		array(
-			array(
-				'id'     => '@wordpress/connectors',
-				'import' => 'static',
-			),
-		),
-		file_exists( $script_path ) ? (string) filemtime( $script_path ) : '0.1.0'
-	);
-}
-add_action( 'init', __NAMESPACE__ . '\\register_assets', 30 );
-
-/**
  * Make the guide an explicit boot dependency of the Connectors page.
  *
- * The module is also enqueued below so it executes, rather than only being
- * included in the page's import map and module preload list.
+ * The generated registration in build/build.php registers the module. It is
+ * also enqueued below so it executes, rather than only being included in the
+ * page's import map and module preload list.
  *
  * @param array<int, array<string, string>> $dependencies Boot dependencies.
  * @return array<int, array<string, string>>
@@ -122,15 +104,14 @@ function enqueue_assets() {
 		return;
 	}
 
-	wp_enqueue_script_module( MODULE_ID );
+	$asset_file = __DIR__ . '/build/modules/connector/index.min.asset.php';
+	$asset      = file_exists( $asset_file ) ? require $asset_file : array();
 
-	$style_path = __DIR__ . '/assets/connector.css';
-	wp_enqueue_style(
-		MODULE_ID,
-		plugins_url( 'assets/connector.css', __FILE__ ),
-		array( 'wp-components' ),
-		file_exists( $style_path ) ? (string) filemtime( $style_path ) : '0.1.0'
-	);
+	foreach ( $asset['dependencies'] ?? array() as $dependency ) {
+		wp_enqueue_script( $dependency );
+	}
+
+	wp_enqueue_script_module( MODULE_ID );
 }
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_assets', 20 );
 
