@@ -167,7 +167,8 @@ function CopyButton({ value, copyLabel = "Copy", copiedLabel = "Copied" }) {
     }
   );
 }
-function StatusBadge({ available }) {
+function StatusBadge({ status }) {
+  const available = status === "available";
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
     "span",
     {
@@ -186,15 +187,77 @@ function Step({ number, title, children }) {
   ] });
 }
 function AdapterStep() {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Step, { number: "1", title: "Check the MCP Adapter", children: guide.adapterAvailable ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_element.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "The MCP Adapter is already available on this site." }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("code", { className: "mcp-guide__endpoint", children: guide.endpoint })
-  ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { children: [
-    "The MCP Adapter was not found.",
-    " ",
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_components.ExternalLink, { href: guide.adapterReleaseUrl, children: "Download it from the official GitHub releases" }),
-    ", install it using your normal plugin workflow, and return here."
-  ] }) });
+  const [isInstalling, setIsInstalling] = (0, import_element.useState)(false);
+  const [error, setError] = (0, import_element.useState)("");
+  const isInactive = guide.adapterStatus === "inactive";
+  const canSetUp = isInactive ? guide.canActivateAdapter : guide.canInstallAdapter;
+  const actionLabel = isInactive ? "Activate MCP Adapter" : "Install and activate MCP Adapter";
+  const installOrActivate = async () => {
+    setIsInstalling(true);
+    setError("");
+    try {
+      const request = isInactive ? {
+        path: `/wp/v2/plugins/${guide.adapterPlugin}`,
+        method: "POST",
+        data: { status: "active" }
+      } : {
+        path: "/wp/v2/plugins",
+        method: "POST",
+        data: { slug: "mcp-adapter", status: "active" }
+      };
+      const response = await (0, import_api_fetch.default)(request);
+      if (!["active", "network-active"].includes(response.status)) {
+        throw new Error("The MCP Adapter was not activated.");
+      }
+      window.location.reload();
+    } catch (requestError) {
+      setError(
+        requestError?.message || "The MCP Adapter could not be installed or activated."
+      );
+      setIsInstalling(false);
+    }
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Step, { number: "1", title: "Set up the MCP Adapter", children: [
+    guide.adapterStatus === "available" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_element.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "The MCP Adapter is already available on this site." }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("code", { className: "mcp-guide__endpoint", children: guide.endpoint })
+    ] }),
+    guide.adapterStatus === "unavailable" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_components.Notice, { status: "warning", isDismissible: false, children: [
+      "The MCP Adapter plugin is active but did not load.",
+      " ",
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: guide.pluginsUrl, children: "Review installed plugins." })
+    ] }),
+    ["missing", "inactive"].includes(guide.adapterStatus) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_element.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: isInactive ? "The official MCP Adapter is installed but inactive." : "The official MCP Adapter is available from the WordPress.org plugin directory." }),
+      canSetUp ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        import_components.Button,
+        {
+          variant: "primary",
+          isBusy: isInstalling,
+          disabled: isInstalling,
+          accessibleWhenDisabled: true,
+          onClick: installOrActivate,
+          children: isInstalling ? "Setting up…" : actionLabel
+        }
+      ) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_components.Notice, { status: "warning", isDismissible: false, children: [
+        "You need permission to",
+        " ",
+        isInactive ? "activate" : "install and activate",
+        " ",
+        "plugins. Ask a site administrator to enable the",
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_components.ExternalLink, { href: guide.adapterDirectoryUrl, children: "MCP Adapter" }),
+        ", then reload this page."
+      ] }),
+      error && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_components.Notice, { status: "error", isDismissible: false, children: [
+        error,
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: guide.pluginsUrl, children: "Review installed plugins" }),
+        " ",
+        "or reload this page to check its current status."
+      ] })
+    ] })
+  ] });
 }
 function CredentialPanel({
   activeClient,
@@ -203,7 +266,7 @@ function CredentialPanel({
   isGenerating,
   error
 }) {
-  if (!guide.adapterAvailable) {
+  if (guide.adapterStatus !== "available") {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mcp-guide__muted", children: "Install or enable an MCP Adapter provider before creating a credential." });
   }
   if (!guide.appPasswordsAvailable || !guide.canCreateAppPassword) {
@@ -357,7 +420,7 @@ function McpConnector(props) {
       name: props.name,
       description: props.description,
       actionArea: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mcp-guide__actions", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(StatusBadge, { available: guide.adapterAvailable }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(StatusBadge, { status: guide.adapterStatus }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           import_components.Button,
           {

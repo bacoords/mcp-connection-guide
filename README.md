@@ -2,17 +2,35 @@
 
 MCP Connection Guide adds a guided setup card to the WordPress Connectors screen. It helps an administrator connect Codex, Claude Code, or Claude Desktop to WordPress through the [WordPress MCP Adapter](https://github.com/WordPress/mcp-adapter).
 
-The plugin is intentionally an onboarding layer. It does not install the MCP Adapter, register WordPress abilities, or store client credentials in Connector settings.
+The plugin is intentionally an onboarding layer. It can install and activate the official MCP Adapter from the WordPress.org Plugin Directory when an administrator requests it. It does not register WordPress abilities or store client credentials in Connector settings.
 
 ## Status
 
 This is an experimental prototype for WordPress 7.1. Its PHP registration uses the WordPress connector registry, while its custom interface currently relies on the experimental `@wordpress/connectors` exports `__experimentalRegisterConnector` and `__experimentalConnectorItem`. Those JavaScript APIs may change before becoming public.
 
+## Live demo
+
+[Open the MCP Connection Guide in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2Fbacoords%2Fmcp-connection-guide%2Fcodex%2Fadapter-plugin-install%2Fblueprint.json). The [Blueprint](blueprint.json) starts WordPress 7.1, installs this branch of the guide, signs in as an administrator, and opens **Settings → Connectors**. Select **Set up** on the **WordPress MCP** card to try the adapter install flow. Playground sites are temporary; use a normal WordPress site to connect an external MCP client.
+
+## Screenshots
+
+The Connectors card before setup:
+
+![WordPress MCP card on the Connectors screen](docs/screenshots/mcp-connectors-card.png)
+
+The adapter install action in the setup guide:
+
+![MCP Adapter install action in the setup guide](docs/screenshots/mcp-connectors-install-step.png)
+
+The guide after installing and activating the adapter:
+
+![MCP Adapter available with the client credential step](docs/screenshots/mcp-connectors-adapter-ready.png)
+
 ## Requirements
 
 - WordPress 7.1 or newer.
 - PHP 7.4 or newer.
-- An available `WP\MCP\Core\McpAdapter` class, supplied either by the standalone MCP Adapter or by another plugin that bundles it.
+- Permission to install and activate plugins if the MCP Adapter is not already available. Otherwise, ask a site administrator to install it.
 - Application Passwords enabled for the current WordPress user.
 - Node.js on the computer running Codex or Claude, because the generated configuration uses [`@automattic/mcp-wordpress-remote`](https://www.npmjs.com/package/@automattic/mcp-wordpress-remote).
 
@@ -22,12 +40,12 @@ This is an experimental prototype for WordPress 7.1. Its PHP registration uses t
 2. Activate **MCP Connection Guide** in WordPress.
 3. Open **Settings → Connectors**.
 
-If the MCP Adapter class is unavailable, the guide links to the [official MCP Adapter releases](https://github.com/WordPress/mcp-adapter/releases/latest). Install or enable the adapter through your normal plugin deployment workflow, then reload the Connectors screen.
+If the MCP Adapter is missing, the guide offers an **Install and activate MCP Adapter** button for administrators with the required permissions. It installs the [mcp-adapter plugin from WordPress.org](https://wordpress.org/plugins/mcp-adapter/) through the WordPress Plugins REST API. If the plugin is already installed but inactive, the guide offers an activation button. The page reloads after activation to verify that the adapter loaded. Sites that restrict plugin installation show instructions for contacting a site administrator.
 
 ## Usage
 
 1. Find **WordPress MCP** on **Settings → Connectors** and select **Set up**.
-2. Confirm that the MCP Adapter is available.
+2. Install or activate the MCP Adapter if needed.
 3. Choose Codex, Claude Code, or Claude Desktop.
 4. Generate a dedicated WordPress Application Password.
 5. Copy the generated command or JSON configuration into the selected client.
@@ -81,7 +99,7 @@ The committed `package-lock.json` and `composer.lock` files make local installs 
 
 The source package declares `@mcp-connection-guide/connector` as a WordPress script module. `@wordpress/build` externalizes the Core Connectors import, generates its static module dependency, bundles JSX and SCSS, and registers the resulting module through `build/build.php`.
 
-The adapter check is deliberately simple: it tests whether `WP\MCP\Core\McpAdapter` exists. It does not install plugins or probe the adapter endpoint.
+The adapter check tests whether `WP\MCP\Core\McpAdapter` exists and checks whether the official plugin is installed. Installation and activation happen only after an administrator clicks the setup action. WordPress handles capability and filesystem checks through its Plugins REST API. The guide does not probe the adapter endpoint.
 
 ## Security
 
