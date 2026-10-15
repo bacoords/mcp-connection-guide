@@ -15,7 +15,7 @@
       "pluginData": {
         "resource": "git:directory",
         "url": "https://github.com/bacoords/mcp-connection-guide",
-        "ref": "codex/adapter-plugin-install",
+        "ref": "main",
         "refType": "branch"
       },
       "options": {
