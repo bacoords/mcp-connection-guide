@@ -480,9 +480,7 @@ function McpConnector(props) {
 		<ConnectorItem
 			className="connector-item--wordpress-mcp mcp-guide"
 			logo={
-				<div className="mcp-guide__logo" aria-hidden="true">
-					MCP
-				</div>
+				<img className="mcp-guide__logo" src={guide.iconUrl} alt="" />
 			}
 			name={props.name}
 			description={props.description}

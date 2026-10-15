@@ -151,6 +151,7 @@ function get_script_module_data( $data ) {
 		'adapterStatus'         => $adapter_status,
 		'adapterPlugin'         => $adapter_plugin,
 		'adapterDirectoryUrl'   => 'https://wordpress.org/plugins/mcp-adapter/',
+		'iconUrl'               => plugins_url( 'assets/mcp-adapter-icon.svg', __FILE__ ),
 		'canInstallAdapter'     => current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' ),
 		'canActivateAdapter'    => $adapter_plugin && current_user_can( 'activate_plugins' ) && current_user_can( 'activate_plugin', $adapter_plugin ),
 		'pluginsUrl'            => admin_url( 'plugins.php' ),
