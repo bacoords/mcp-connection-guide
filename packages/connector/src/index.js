@@ -123,7 +123,8 @@ function CopyButton({ value, copyLabel = 'Copy', copiedLabel = 'Copied' }) {
 	);
 }
 
-function StatusBadge({ available }) {
+function StatusBadge({ status }) {
+	const available = status === 'available';
 	return (
 		<span
 			className={`mcp-guide__badge mcp-guide__badge--${
@@ -150,24 +151,102 @@ function Step({ number, title, children }) {
 }
 
 function AdapterStep() {
+	const [isInstalling, setIsInstalling] = useState(false);
+	const [error, setError] = useState('');
+	const isInactive = guide.adapterStatus === 'inactive';
+	const canSetUp = isInactive
+		? guide.canActivateAdapter
+		: guide.canInstallAdapter;
+	const actionLabel = isInactive
+		? 'Activate MCP Adapter'
+		: 'Install and activate MCP Adapter';
+
+	const installOrActivate = async () => {
+		setIsInstalling(true);
+		setError('');
+
+		try {
+			const request = isInactive
+				? {
+						path: `/wp/v2/plugins/${guide.adapterPlugin}`,
+						method: 'POST',
+						data: { status: 'active' },
+					}
+				: {
+						path: '/wp/v2/plugins',
+						method: 'POST',
+						data: { slug: 'mcp-adapter', status: 'active' },
+					};
+			const response = await apiFetch(request);
+			if (!['active', 'network-active'].includes(response.status)) {
+				throw new Error('The MCP Adapter was not activated.');
+			}
+
+			// A fresh request checks that the adapter loaded before showing credentials.
+			window.location.reload();
+		} catch (requestError) {
+			setError(
+				requestError?.message ||
+					'The MCP Adapter could not be installed or activated.'
+			);
+			setIsInstalling(false);
+		}
+	};
+
 	return (
-		<Step number="1" title="Check the MCP Adapter">
-			{guide.adapterAvailable ? (
+		<Step number="1" title="Set up the MCP Adapter">
+			{guide.adapterStatus === 'available' && (
 				<Fragment>
 					<p>The MCP Adapter is already available on this site.</p>
 					<code className="mcp-guide__endpoint">
 						{guide.endpoint}
 					</code>
 				</Fragment>
-			) : (
-				<p>
-					The MCP Adapter was not found.{' '}
-					<ExternalLink href={guide.adapterReleaseUrl}>
-						Download it from the official GitHub releases
-					</ExternalLink>
-					, install it using your normal plugin workflow, and return
-					here.
-				</p>
+			)}
+			{guide.adapterStatus === 'unavailable' && (
+				<Notice status="warning" isDismissible={false}>
+					The MCP Adapter plugin is active but did not load.{' '}
+					<a href={guide.pluginsUrl}>Review installed plugins.</a>
+				</Notice>
+			)}
+			{['missing', 'inactive'].includes(guide.adapterStatus) && (
+				<Fragment>
+					<p>
+						{isInactive
+							? 'The official MCP Adapter is installed but inactive.'
+							: 'The official MCP Adapter is available from the WordPress.org plugin directory.'}
+					</p>
+					{canSetUp ? (
+						<Button
+							variant="primary"
+							isBusy={isInstalling}
+							disabled={isInstalling}
+							accessibleWhenDisabled
+							onClick={installOrActivate}
+						>
+							{isInstalling ? 'Setting up…' : actionLabel}
+						</Button>
+					) : (
+						<Notice status="warning" isDismissible={false}>
+							You need permission to{' '}
+							{isInactive ? 'activate' : 'install and activate'}{' '}
+							plugins. Ask a site administrator to enable the{' '}
+							<ExternalLink href={guide.adapterDirectoryUrl}>
+								MCP Adapter
+							</ExternalLink>
+							, then reload this page.
+						</Notice>
+					)}
+					{error && (
+						<Notice status="error" isDismissible={false}>
+							{error}{' '}
+							<a href={guide.pluginsUrl}>
+								Review installed plugins
+							</a>{' '}
+							or reload this page to check its current status.
+						</Notice>
+					)}
+				</Fragment>
 			)}
 		</Step>
 	);
@@ -180,7 +259,7 @@ function CredentialPanel({
 	isGenerating,
 	error,
 }) {
-	if (!guide.adapterAvailable) {
+	if (guide.adapterStatus !== 'available') {
 		return (
 			<p className="mcp-guide__muted">
 				Install or enable an MCP Adapter provider before creating a
@@ -375,7 +454,7 @@ function McpConnector(props) {
 			description={props.description}
 			actionArea={
 				<div className="mcp-guide__actions">
-					<StatusBadge available={guide.adapterAvailable} />
+					<StatusBadge status={guide.adapterStatus} />
 					<Button
 						variant={expanded ? 'tertiary' : 'secondary'}
 						size="compact"

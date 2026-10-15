@@ -122,6 +122,8 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_assets', 20 );
  * @return array<string, mixed>
  */
 function get_script_module_data( $data ) {
+	require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
 	$user       = wp_get_current_user();
 	$site_name  = get_bloginfo( 'name' );
 	$site_host  = (string) wp_parse_url( home_url( '/' ), PHP_URL_HOST );
@@ -131,9 +133,27 @@ function get_script_module_data( $data ) {
 		&& wp_is_application_passwords_available()
 		&& wp_is_application_passwords_available_for_user( $user );
 
+	$adapter_plugin = '';
+	foreach ( array_keys( get_plugins() ) as $plugin_file ) {
+		if ( 'mcp-adapter' === dirname( $plugin_file ) ) {
+			$adapter_plugin = $plugin_file;
+			break;
+		}
+	}
+
+	$adapter_available = class_exists( '\\WP\\MCP\\Core\\McpAdapter' );
+	$adapter_status    = $adapter_available ? 'available' : ( $adapter_plugin ? 'inactive' : 'missing' );
+	if ( $adapter_plugin && is_plugin_active( $adapter_plugin ) && ! $adapter_available ) {
+		$adapter_status = 'unavailable';
+	}
+
 	$data['guide'] = array(
-		'adapterAvailable'      => class_exists( '\\WP\\MCP\\Core\\McpAdapter' ),
-		'adapterReleaseUrl'     => 'https://github.com/WordPress/mcp-adapter/releases/latest',
+		'adapterStatus'         => $adapter_status,
+		'adapterPlugin'         => $adapter_plugin,
+		'adapterDirectoryUrl'   => 'https://wordpress.org/plugins/mcp-adapter/',
+		'canInstallAdapter'     => current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' ),
+		'canActivateAdapter'    => $adapter_plugin && current_user_can( 'activate_plugins' ) && current_user_can( 'activate_plugin', $adapter_plugin ),
+		'pluginsUrl'            => admin_url( 'plugins.php' ),
 		'appPasswordsAvailable' => $app_passwords_available,
 		'canCreateAppPassword'  => $user->exists()
 			&& current_user_can( 'create_app_password', $user->ID ),
