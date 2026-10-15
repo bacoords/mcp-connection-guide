@@ -12,6 +12,20 @@ This is an experimental prototype for WordPress 7.1. Its PHP registration uses t
 
 [Open the MCP Connection Guide in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2Fbacoords%2Fmcp-connection-guide%2Fcodex%2Fadapter-plugin-install%2Fblueprint.json). The [Blueprint](blueprint.json) starts WordPress 7.1, installs this branch of the guide, signs in as an administrator, and opens **Settings → Connectors**. Select **Set up** on the **WordPress MCP** card to try the adapter install flow. Playground sites are temporary; use a normal WordPress site to connect an external MCP client.
 
+## Screenshots
+
+The Connectors card before setup:
+
+![WordPress MCP card on the Connectors screen](docs/screenshots/mcp-connectors-card.png)
+
+The adapter install action in the setup guide:
+
+![MCP Adapter install action in the setup guide](docs/screenshots/mcp-connectors-install-step.png)
+
+The guide after installing and activating the adapter:
+
+![MCP Adapter available with the client credential step](docs/screenshots/mcp-connectors-adapter-ready.png)
+
 ## Requirements
 
 - WordPress 7.1 or newer.
