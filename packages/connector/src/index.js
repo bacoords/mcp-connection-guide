@@ -426,9 +426,11 @@ function McpConnector(props) {
 		setInstallError('');
 
 		try {
+			// The Plugins REST API identifies plugins without the .php suffix.
+			const adapterRestId = guide.adapterPlugin.replace(/\.php$/, '');
 			const request = isInactive
 				? {
-						path: `/wp/v2/plugins/${guide.adapterPlugin}`,
+						path: `/wp/v2/plugins/${adapterRestId}`,
 						method: 'POST',
 						data: { status: 'active' },
 					}

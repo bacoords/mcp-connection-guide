@@ -403,8 +403,9 @@ function McpConnector(props) {
     setIsInstalling(true);
     setInstallError("");
     try {
+      const adapterRestId = guide.adapterPlugin.replace(/\.php$/, "");
       const request = isInactive ? {
-        path: `/wp/v2/plugins/${guide.adapterPlugin}`,
+        path: `/wp/v2/plugins/${adapterRestId}`,
         method: "POST",
         data: { status: "active" }
       } : {
