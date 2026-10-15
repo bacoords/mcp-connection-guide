@@ -10,17 +10,13 @@ This is an experimental prototype for WordPress 7.1. Its PHP registration uses t
 
 ## Live demo
 
-[Open the MCP Connection Guide in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2Fbacoords%2Fmcp-connection-guide%2Fmain%2Fblueprint.json). The [Blueprint](blueprint.json) starts WordPress 7.1, installs the guide from `main`, signs in as an administrator, and opens **Settings → Connectors**. Select **Set up** on the **WordPress MCP** card to try the adapter install flow. Playground sites are temporary; use a normal WordPress site to connect an external MCP client.
+[Open the MCP Connection Guide in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2Fbacoords%2Fmcp-connection-guide%2Fmain%2Fblueprint.json). The [Blueprint](blueprint.json) starts WordPress 7.1, installs the guide from `main`, signs in as an administrator, and opens **Settings → Connectors**. Select **Install** on the **WordPress MCP** card to install the adapter, then **Set up** after the page reloads. Playground sites are temporary; use a normal WordPress site to connect an external MCP client.
 
 ## Screenshots
 
-The Connectors card before setup:
+The Connectors card before installing the adapter:
 
 ![WordPress MCP card on the Connectors screen](docs/screenshots/mcp-connectors-card.png)
-
-The adapter install action in the setup guide:
-
-![MCP Adapter install action in the setup guide](docs/screenshots/mcp-connectors-install-step.png)
 
 The guide after installing and activating the adapter:
 
@@ -40,12 +36,12 @@ The guide after installing and activating the adapter:
 2. Activate **MCP Connection Guide** in WordPress.
 3. Open **Settings → Connectors**.
 
-If the MCP Adapter is missing, the guide offers an **Install and activate MCP Adapter** button for administrators with the required permissions. It installs the [mcp-adapter plugin from WordPress.org](https://wordpress.org/plugins/mcp-adapter/) through the WordPress Plugins REST API. If the plugin is already installed but inactive, the guide offers an activation button. The page reloads after activation to verify that the adapter loaded. Sites that restrict plugin installation show instructions for contacting a site administrator.
+If the MCP Adapter is missing, the card offers an **Install** button for administrators with the required permissions. It installs the [mcp-adapter plugin from WordPress.org](https://wordpress.org/plugins/mcp-adapter/) through the WordPress Plugins REST API. If the plugin is already installed but inactive, the card offers an **Activate** button. The page reloads after activation to verify that the adapter loaded. Sites that restrict plugin installation show instructions for contacting a site administrator.
 
 ## Usage
 
-1. Find **WordPress MCP** on **Settings → Connectors** and select **Set up**.
-2. Install or activate the MCP Adapter if needed.
+1. Find **WordPress MCP** on **Settings → Connectors** and select **Install** or **Activate** if needed.
+2. After the page reloads, select **Set up**.
 3. Choose Codex, Claude Code, or Claude Desktop.
 4. Generate a dedicated WordPress Application Password.
 5. Copy the generated command or JSON configuration into the selected client.
