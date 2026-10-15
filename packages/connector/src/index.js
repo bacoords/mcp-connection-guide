@@ -150,9 +150,7 @@ function Step({ number, title, children }) {
 	);
 }
 
-function AdapterStep() {
-	const [isInstalling, setIsInstalling] = useState(false);
-	const [error, setError] = useState('');
+function AdapterStep({ isInstalling, error, onInstallOrActivate }) {
 	const isInactive = guide.adapterStatus === 'inactive';
 	const canSetUp = isInactive
 		? guide.canActivateAdapter
@@ -160,38 +158,6 @@ function AdapterStep() {
 	const actionLabel = isInactive
 		? 'Activate MCP Adapter'
 		: 'Install and activate MCP Adapter';
-
-	const installOrActivate = async () => {
-		setIsInstalling(true);
-		setError('');
-
-		try {
-			const request = isInactive
-				? {
-						path: `/wp/v2/plugins/${guide.adapterPlugin}`,
-						method: 'POST',
-						data: { status: 'active' },
-					}
-				: {
-						path: '/wp/v2/plugins',
-						method: 'POST',
-						data: { slug: 'mcp-adapter', status: 'active' },
-					};
-			const response = await apiFetch(request);
-			if (!['active', 'network-active'].includes(response.status)) {
-				throw new Error('The MCP Adapter was not activated.');
-			}
-
-			// A fresh request checks that the adapter loaded before showing credentials.
-			window.location.reload();
-		} catch (requestError) {
-			setError(
-				requestError?.message ||
-					'The MCP Adapter could not be installed or activated.'
-			);
-			setIsInstalling(false);
-		}
-	};
 
 	return (
 		<Step number="1" title="Set up the MCP Adapter">
@@ -222,7 +188,7 @@ function AdapterStep() {
 							isBusy={isInstalling}
 							disabled={isInstalling}
 							accessibleWhenDisabled
-							onClick={installOrActivate}
+							onClick={onInstallOrActivate}
 						>
 							{isInstalling ? 'Setting up…' : actionLabel}
 						</Button>
@@ -348,7 +314,7 @@ function CredentialPanel({
 	);
 }
 
-function SetupGuide() {
+function SetupGuide({ isInstalling, installError, onInstallOrActivate }) {
 	const [activeClient, setActiveClient] = useState('codex');
 	const [credentials, setCredentials] = useState({});
 	const [generatingClient, setGeneratingClient] = useState(null);
@@ -395,7 +361,11 @@ function SetupGuide() {
 
 	return (
 		<div className="mcp-guide__setup">
-			<AdapterStep />
+			<AdapterStep
+				isInstalling={isInstalling}
+				error={installError}
+				onInstallOrActivate={onInstallOrActivate}
+			/>
 			<Step number="2" title="Choose a client and create its credential">
 				<div
 					className="mcp-guide__tabs"
@@ -441,6 +411,68 @@ function SetupGuide() {
 
 function McpConnector(props) {
 	const [expanded, setExpanded] = useState(false);
+	const [isInstalling, setIsInstalling] = useState(false);
+	const [installError, setInstallError] = useState('');
+	const needsAdapterAction = ['missing', 'inactive'].includes(
+		guide.adapterStatus
+	);
+	const isInactive = guide.adapterStatus === 'inactive';
+	const canSetUp = isInactive
+		? guide.canActivateAdapter
+		: guide.canInstallAdapter;
+
+	const installOrActivate = async () => {
+		setIsInstalling(true);
+		setInstallError('');
+
+		try {
+			const request = isInactive
+				? {
+						path: `/wp/v2/plugins/${guide.adapterPlugin}`,
+						method: 'POST',
+						data: { status: 'active' },
+					}
+				: {
+						path: '/wp/v2/plugins',
+						method: 'POST',
+						data: { slug: 'mcp-adapter', status: 'active' },
+					};
+			const response = await apiFetch(request);
+			if (!['active', 'network-active'].includes(response.status)) {
+				throw new Error('The MCP Adapter was not activated.');
+			}
+
+			// A fresh request checks that the adapter loaded before showing credentials.
+			window.location.reload();
+		} catch (requestError) {
+			setInstallError(
+				requestError?.message ||
+					'The MCP Adapter could not be installed or activated.'
+			);
+			setIsInstalling(false);
+			setExpanded(true);
+		}
+	};
+
+	const handleAction = () => {
+		if (!needsAdapterAction) {
+			setExpanded((value) => !value);
+			return;
+		}
+
+		if (!canSetUp) {
+			setExpanded(true);
+			return;
+		}
+
+		installOrActivate();
+	};
+
+	let actionLabel = expanded ? 'Hide setup' : 'Set up';
+	if (needsAdapterAction) {
+		actionLabel = isInactive ? 'Activate' : 'Install';
+	}
+	const busyLabel = isInactive ? 'Activating…' : 'Installing…';
 
 	return (
 		<ConnectorItem
@@ -456,17 +488,32 @@ function McpConnector(props) {
 				<div className="mcp-guide__actions">
 					<StatusBadge status={guide.adapterStatus} />
 					<Button
-						variant={expanded ? 'tertiary' : 'secondary'}
+						variant={
+							!needsAdapterAction && expanded
+								? 'tertiary'
+								: 'secondary'
+						}
 						size="compact"
-						onClick={() => setExpanded((value) => !value)}
-						aria-expanded={expanded}
+						isBusy={isInstalling}
+						disabled={isInstalling}
+						accessibleWhenDisabled
+						onClick={handleAction}
+						aria-expanded={
+							needsAdapterAction ? undefined : expanded
+						}
 					>
-						{expanded ? 'Hide setup' : 'Set up'}
+						{isInstalling ? busyLabel : actionLabel}
 					</Button>
 				</div>
 			}
 		>
-			{expanded && <SetupGuide />}
+			{expanded && (
+				<SetupGuide
+					isInstalling={isInstalling}
+					installError={installError}
+					onInstallOrActivate={installOrActivate}
+				/>
+			)}
 		</ConnectorItem>
 	);
 }

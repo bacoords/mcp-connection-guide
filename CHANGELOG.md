@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Install and activate the official MCP Adapter from the WordPress.org Plugin Directory through the Connectors guide.
 - Handle installed but inactive adapters, permission limits, and installation errors.
+- Show Install or Activate on the connector card when the adapter needs that action, with Set up shown once it is available.
 
 ## [0.1.0] - 2026-08-07
 

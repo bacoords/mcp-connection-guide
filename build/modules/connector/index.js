@@ -186,37 +186,10 @@ function Step({ number, title, children }) {
     ] })
   ] });
 }
-function AdapterStep() {
-  const [isInstalling, setIsInstalling] = (0, import_element.useState)(false);
-  const [error, setError] = (0, import_element.useState)("");
+function AdapterStep({ isInstalling, error, onInstallOrActivate }) {
   const isInactive = guide.adapterStatus === "inactive";
   const canSetUp = isInactive ? guide.canActivateAdapter : guide.canInstallAdapter;
   const actionLabel = isInactive ? "Activate MCP Adapter" : "Install and activate MCP Adapter";
-  const installOrActivate = async () => {
-    setIsInstalling(true);
-    setError("");
-    try {
-      const request = isInactive ? {
-        path: `/wp/v2/plugins/${guide.adapterPlugin}`,
-        method: "POST",
-        data: { status: "active" }
-      } : {
-        path: "/wp/v2/plugins",
-        method: "POST",
-        data: { slug: "mcp-adapter", status: "active" }
-      };
-      const response = await (0, import_api_fetch.default)(request);
-      if (!["active", "network-active"].includes(response.status)) {
-        throw new Error("The MCP Adapter was not activated.");
-      }
-      window.location.reload();
-    } catch (requestError) {
-      setError(
-        requestError?.message || "The MCP Adapter could not be installed or activated."
-      );
-      setIsInstalling(false);
-    }
-  };
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Step, { number: "1", title: "Set up the MCP Adapter", children: [
     guide.adapterStatus === "available" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_element.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "The MCP Adapter is already available on this site." }),
@@ -236,7 +209,7 @@ function AdapterStep() {
           isBusy: isInstalling,
           disabled: isInstalling,
           accessibleWhenDisabled: true,
-          onClick: installOrActivate,
+          onClick: onInstallOrActivate,
           children: isInstalling ? "Setting up…" : actionLabel
         }
       ) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_components.Notice, { status: "warning", isDismissible: false, children: [
@@ -326,7 +299,7 @@ function CredentialPanel({
     ] })
   ] });
 }
-function SetupGuide() {
+function SetupGuide({ isInstalling, installError, onInstallOrActivate }) {
   const [activeClient, setActiveClient] = (0, import_element.useState)("codex");
   const [credentials, setCredentials] = (0, import_element.useState)({});
   const [generatingClient, setGeneratingClient] = (0, import_element.useState)(null);
@@ -365,7 +338,14 @@ function SetupGuide() {
     }
   };
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mcp-guide__setup", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AdapterStep, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      AdapterStep,
+      {
+        isInstalling,
+        error: installError,
+        onInstallOrActivate
+      }
+    ),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Step, { number: "2", title: "Choose a client and create its credential", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
         "div",
@@ -412,6 +392,55 @@ function SetupGuide() {
 }
 function McpConnector(props) {
   const [expanded, setExpanded] = (0, import_element.useState)(false);
+  const [isInstalling, setIsInstalling] = (0, import_element.useState)(false);
+  const [installError, setInstallError] = (0, import_element.useState)("");
+  const needsAdapterAction = ["missing", "inactive"].includes(
+    guide.adapterStatus
+  );
+  const isInactive = guide.adapterStatus === "inactive";
+  const canSetUp = isInactive ? guide.canActivateAdapter : guide.canInstallAdapter;
+  const installOrActivate = async () => {
+    setIsInstalling(true);
+    setInstallError("");
+    try {
+      const request = isInactive ? {
+        path: `/wp/v2/plugins/${guide.adapterPlugin}`,
+        method: "POST",
+        data: { status: "active" }
+      } : {
+        path: "/wp/v2/plugins",
+        method: "POST",
+        data: { slug: "mcp-adapter", status: "active" }
+      };
+      const response = await (0, import_api_fetch.default)(request);
+      if (!["active", "network-active"].includes(response.status)) {
+        throw new Error("The MCP Adapter was not activated.");
+      }
+      window.location.reload();
+    } catch (requestError) {
+      setInstallError(
+        requestError?.message || "The MCP Adapter could not be installed or activated."
+      );
+      setIsInstalling(false);
+      setExpanded(true);
+    }
+  };
+  const handleAction = () => {
+    if (!needsAdapterAction) {
+      setExpanded((value) => !value);
+      return;
+    }
+    if (!canSetUp) {
+      setExpanded(true);
+      return;
+    }
+    installOrActivate();
+  };
+  let actionLabel = expanded ? "Hide setup" : "Set up";
+  if (needsAdapterAction) {
+    actionLabel = isInactive ? "Activate" : "Install";
+  }
+  const busyLabel = isInactive ? "Activating…" : "Installing…";
   return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
     ConnectorItem,
     {
@@ -424,15 +453,25 @@ function McpConnector(props) {
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           import_components.Button,
           {
-            variant: expanded ? "tertiary" : "secondary",
+            variant: !needsAdapterAction && expanded ? "tertiary" : "secondary",
             size: "compact",
-            onClick: () => setExpanded((value) => !value),
-            "aria-expanded": expanded,
-            children: expanded ? "Hide setup" : "Set up"
+            isBusy: isInstalling,
+            disabled: isInstalling,
+            accessibleWhenDisabled: true,
+            onClick: handleAction,
+            "aria-expanded": needsAdapterAction ? void 0 : expanded,
+            children: isInstalling ? busyLabel : actionLabel
           }
         )
       ] }),
-      children: expanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SetupGuide, {})
+      children: expanded && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        SetupGuide,
+        {
+          isInstalling,
+          installError,
+          onInstallOrActivate: installOrActivate
+        }
+      )
     }
   );
 }
